@@ -1,16 +1,16 @@
-# The following script is licenced under CC BY-NC-SA 4.0.
+# The following script is licensed under CC BY-NC-SA 4.0.
 # Flappy Bird Python © 2024 by Earth1283 is licensed under CC BY-NC-SA 4.0.
-# This game has been known to be highly addictive, so please play this under your own discreetion
+# This game has been known to be highly addictive, so please play this under your own discretion
 # Game recommended for 0+, children under the age of 13 shall play under parental supervision
 # +===========================+
 # +PUBLIC DISTRIBUTION EDITION+
 # +===========================+
 
-# Release 1.10 - The performance update
+# Release 1.10.1 - The performance update
 
 # Controls:
 # [Space] Jump or restart the game
-# [G] Show guidance (you still have to mannually play it)
+# [G] Show guidance as a dotted orange line on the screen. It will show you the mathematically best path to the next pipe. Generally, if the orange line goes through a pipe, then you are out of hope.
 # [H] Show hitboxes, the hitbox of the player gets thicker when it is closer to the pipes
 # Info:
 # Avoid the green pipes, and jump to avoid them
@@ -101,6 +101,7 @@ class FlappyBird:
             self.invincibility_countdown = self.canvas.create_text(200, 300, text=f'Invincibility: 5', font=('Arial', 24), fill='blue')
         self.update_invincibility_countdown(5)
         if not self.invincibility_glow:
+            # Invincibility glow
             self.invincibility_glow = self.canvas.create_oval(self.canvas.coords(self.bird)[0] - 5,
                                                               self.canvas.coords(self.bird)[1] - 5,
                                                               self.canvas.coords(self.bird)[2] + 5,
@@ -147,7 +148,7 @@ class FlappyBird:
                 self.canvas.delete(pipe)
             self.pipes.append(self.create_pipe(400))
             self.pipes_passed_since_last_item += 1
-
+# Scrolls the item
     def move_invincibility_item(self):
         if self.invincibility_item_exists:
             self.canvas.move(self.invincibility_item, -self.pipe_speed, 0)
@@ -180,7 +181,7 @@ class FlappyBird:
         if (box1 is None) or (box2 is None):
             return False
         return (box1[0] < box2[2] and box1[2] > box2[0] and box1[1] < box2[3] and box1[3] > box2[1])
-
+# Updates the game tick
     def update_game(self):
         if self.game_active:
             self.bird_velocity += self.gravity
@@ -276,7 +277,7 @@ class FlappyBird:
         # Remove existing predicted path
         self.canvas.delete("predicted_path")
 
-        # Draw predicted path
+        # Draw a predicted path
         bird_coords = self.canvas.coords(self.bird)
         bird_center_x = (bird_coords[0] + bird_coords[2]) / 2
         bird_center_y = (bird_coords[1] + bird_coords[3]) / 2
@@ -299,10 +300,10 @@ class FlappyBird:
                 if abs(bird_coords[0] - pipe_coords[2]) < 30 or abs(bird_coords[2] - pipe_coords[0]) < 30:
                     return 3  # Thicker hitbox
         return 1  # Normal hitbox
-
+# Random chance to spawn th item (50%)
     def spawn_invincibility_item(self):
         if not self.invincibility_item_exists and self.pipes_passed_since_last_item >= random.randint(7, 10):
-            if random.random() < 0.5:  # 50% chance to spawn the item
+            if random.random() < 0.5:  # 50% chance to spawn the item, modify to your will
                 item_x = 400
                 item_y = self.get_valid_item_y_position()
                 self.invincibility_item = self.canvas.create_oval(item_x, item_y, item_x + 20, item_y + 20, fill='blue', outline='blue')
@@ -311,11 +312,11 @@ class FlappyBird:
 
     def get_valid_item_y_position(self):
         attempts = 0
-        max_attempts = 50000  # Prevent infinite loop, however, if you put this number too high it will crash the game
-        # For modders: The sweet spot is around 50000 attempts for balance.
-        # If the program cannot find a good place to put it, it will stuff it at Y250.
+        max_attempts = 25000  # Prevent infinite loop, however, if you put this number too high it will crash the game
+        # For modders: The sweet spot is around 25000 attempts for balance.
+        # If the program cannot find a good place to put it, it will stuff it at Y250, which (more often than not) is in a wall.
         # Below 10K attempts is for smooth playing, and above 10K is basically for performance
-        # If it goes above 100K it might lag the game.
+        # If it goes above 100K it might lag the game when Python can't figure out the location.
         while attempts < max_attempts:
             item_y = random.randint(100, 500)
             valid_position = True
@@ -329,10 +330,10 @@ class FlappyBird:
             if valid_position:
                 return item_y
             attempts += 1
-        # If no valid position found after max_attempts, return a default position
+        # If no valid position is found after max_attempts, returns to Y250
         return 250
 
-# Reset the game to its origional configuration
+# Reset the game to its original configuration
     def restart_game(self):
         if self.score > self.high_score:
             self.high_score = self.score
